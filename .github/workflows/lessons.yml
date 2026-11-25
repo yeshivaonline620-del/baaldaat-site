@@ -2,7 +2,7 @@ name: Обновить записи уроков
 
 on:
   schedule:
-    - cron: "17 */6 * * *"
+   - cron: "17 5 * * *"   # раз в сутки, в 05:17 по UTC
   workflow_dispatch:
 
 permissions:
