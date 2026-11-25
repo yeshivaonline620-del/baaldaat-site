@@ -1,0 +1,40 @@
+name: Обновить записи уроков
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lessons
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Собрать страницы уроков
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python tools/build_lessons.py
+
+      - name: Сохранить изменения
+        run: |
+          git config user.name "lessons-bot"
+          git config user.email "lessons-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Новых уроков нет."
+          else
+            git commit -m "Обновлены записи уроков"
+            git push
+          fi
